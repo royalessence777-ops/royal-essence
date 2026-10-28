@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Royal Essence Parfum</title>
+<style>
+:root{--bg:#faf7f2;--card:#fff;--tx:#1d1a16;--mu:#7a7266;--ac:#a8812f;--bd:#e6dfd2}
+@media(prefers-color-scheme:dark){:root{--bg:#15130f;--card:#201d17;--tx:#f1ece2;--mu:#a39a8a;--ac:#d4a84b;--bd:#37321f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,sans-serif;padding-bottom:80px}
+h1{font:600 26px Georgia,serif;color:var(--ac);text-align:center;letter-spacing:1px;margin:22px 0 4px}p.s{text-align:center;color:var(--mu);margin:0 0 16px}
+button,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer}
+.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:960px;margin:auto;padding:0 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px}.c img,.ph{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--bd);display:block}
+.m{color:var(--mu);font-size:13px}.pr{color:var(--ac);font-weight:700}
+#cart{position:fixed;left:0;right:0;bottom:0;padding:10px 12px;background:var(--card);border-top:1px solid var(--bd);display:none}
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;width:92%;max-width:380px}dialog input{width:100%;margin-bottom:8px}
+</style></head><body>
+<h1>ROYAL ESSENCE PARFUM</h1><p class="s">Perfumería por pedido</p>
+<main id="m"></main><div id="cart"></div><dialog id="d"></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="sb_publishable_7lk7Tul0yXUudIkkhnMKsQ_ZAltDex6",WA="5493532437140";
+const sb=supabase.createClient(SB_URL,SB_KEY);let P=[],cart={};
+const $=s=>document.querySelector(s),money=n=>"$"+Number(n||0).toLocaleString("es-AR");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+(async()=>{const{data}=await sb.from("productos").select("id,nombre,descripcion,precio,foto").order("nombre");P=data||[];draw()})();
+function draw(){
+ $("#m").innerHTML=P.map(p=>`<div class="c">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}">`:'<div class="ph"></div>'}<b>${esc(p.nombre)}</b><div class="m">${esc(p.descripcion)}</div><div class="pr">${money(p.precio)}</div><button data-a="${p.id}" style="width:100%;margin-top:6px">Agregar a pedido${cart[p.id]?" ("+cart[p.id]+")":""}</button></div>`).join("");
+ document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{cart[b.dataset.a]=(cart[b.dataset.a]||0)+1;draw()});
+ const ids=Object.keys(cart),c=$("#cart");c.style.display=ids.length?"block":"none";
+ const tot=ids.reduce((s,i)=>s+P.find(p=>p.id===i).precio*cart[i],0);
+ c.innerHTML=`<b>${ids.reduce((s,i)=>s+cart[i],0)} perfume(s) · ${money(tot)}</b> <button class="p" id="go" style="float:right">Enviar pedido</button><button id="x" style="float:right;margin-right:6px">Vaciar</button>`;
+ if(ids.length){$("#x").onclick=()=>{cart={};draw()};$("#go").onclick=ask}
+}
+function ask(){const d=$("#d");d.innerHTML='<h3>Tu pedido</h3><form id="f"><input name="n" placeholder="Tu nombre" required><input name="t" placeholder="Tu WhatsApp" required><button class="p" style="width:100%">Enviar</button></form>';d.showModal();
+ $("#f").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);
+  const items=Object.keys(cart).map(i=>{const p=P.find(x=>x.id===i);return{id:i,nombre:p.nombre,cant:cart[i],precio:p.precio}});
+  const total=items.reduce((s,i)=>s+i.cant*i.precio,0);
+  await sb.from("pedidos").insert({cliente:f.get("n"),tel:f.get("t"),items,total});
+  const msg=`Hola! Soy ${f.get("n")} (${f.get("t")}). Quiero:\n`+items.map(i=>`• ${i.cant} x ${i.nombre} (${money(i.precio)})`).join("\n")+`\nTotal: ${money(total)}`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,"_blank");cart={};d.close();draw()}}
+</script></body></html>

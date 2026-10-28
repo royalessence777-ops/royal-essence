@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Gestión · Royal Essence</title>
+<style>
+:root{--bg:#faf7f2;--card:#fff;--tx:#1d1a16;--mu:#7a7266;--ac:#a8812f;--bd:#e6dfd2}
+@media(prefers-color-scheme:dark){:root{--bg:#15130f;--card:#201d17;--tx:#f1ece2;--mu:#a39a8a;--ac:#d4a84b;--bd:#37321f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,sans-serif}
+h1{font:600 22px Georgia,serif;color:var(--ac);text-align:center;margin:16px 0 4px}
+nav{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer}
+button.p,nav .on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:900px;margin:auto;padding:8px 12px 60px}form{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:8px}.pr{color:var(--ac);font-weight:700}.m{color:var(--mu)}
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;max-width:420px;width:92%}pre{white-space:pre-wrap;font:13px monospace}
+</style></head><body>
+<h1>ROYAL ESSENCE · GESTIÓN</h1><nav id="nav"></nav><main id="m"></main><dialog id="d"></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="sb_publishable_7lk7Tul0yXUudIkkhnMKsQ_ZAltDex6";
+const SOCIOS=["Tiago","Joaquin","Cuenta del negocio"],sb=supabase.createClient(SB_URL,SB_KEY);
+let P=[],V=[],O=[],tab="stock",edit=null;
+const $=s=>document.querySelector(s),$$=(s,f)=>document.querySelectorAll(s).forEach(f);
+const money=n=>"$"+Number(n||0).toLocaleString("es-AR"),pid=i=>P.find(p=>p.id===i);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+(async()=>{const{data:{session}}=await sb.auth.getSession();session?start():login()})();
+function login(msg){
+ $("#nav").innerHTML="";$("#m").innerHTML=`<form id="f" style="max-width:320px;margin:30px auto;grid-template-columns:1fr"><input name="e" type="email" placeholder="Email" required><input name="p" type="password" placeholder="Contraseña" required><button class="p">Ingresar</button><div class="m">${msg||""}</div></form>`;
+ $("#f").onsubmit=async e=>{e.preventDefault();const f=e.target,{error}=await sb.auth.signInWithPassword({email:f.e.value,password:f.p.value});error?login("Email o contraseña incorrectos"):start()};
+}
+async function start(){
+ const{data:ok}=await sb.rpc("es_socio");
+ if(!ok){await sb.auth.signOut();return login("Esta cuenta no tiene acceso.")}
+ await load();
+}
+async function load(){
+ const[p,v,o]=await Promise.all([sb.from("productos").select("*").order("nombre"),sb.from("ventas").select("*").order("fecha",{ascending:false}),sb.from("pedidos").select("*").order("fecha",{ascending:false})]);
+ P=p.data||[];V=v.data||[];O=o.data||[];render();
+}
+function render(){
+ const T=[["stock","Stock"],["ventas","Ventas"],["dinero","Dinero"],["ped","Pedidos ("+O.filter(o=>o.estado==="Pendiente").length+")"]];
+ $("#nav").innerHTML=T.map(t=>`<button class="${tab===t[0]?"on":""}" data-t="${t[0]}">${t[1]}</button>`).join("")+`<button id="out">Salir</button>`;
+ $$("#nav [data-t]",b=>b.onclick=()=>{tab=b.dataset.t;render()});$("#out").onclick=async()=>{await sb.auth.signOut();login()};
+ ({stock:vStock,ventas:vVentas,dinero:vDinero,ped:vPed})[tab]();
+}
+function vStock(){
+ const e=edit?pid(edit):{};
+ $("#m").innerHTML=`<h3>${edit?"Modificar":"Alta de"} producto</h3><form id="f"><input name="nombre" placeholder="Nombre" value="${esc(e.nombre)}" required><input name="costo" type="number" step="any" placeholder="Costo" value="${e.costo??""}"><input name="precio" type="number" step="any" placeholder="Precio venta" value="${e.precio??""}" required><input name="stock" type="number" placeholder="Stock" value="${e.stock??""}"><input name="desc" placeholder="Descripción" value="${esc(e.descripcion)}"><input name="foto" type="file" accept="image/*"><button class="p">${edit?"Guardar":"Agregar"}</button>${edit?'<button type="button" id="cx">Cancelar</button>':""}</form>
+ <div class="w"><table><tr><th>Producto</th><th>Stock</th><th>Costo</th><th>Precio</th><th>Visible</th><th></th></tr>${P.map(p=>`<tr><td>${esc(p.nombre)}</td><td><button data-m="${p.id}">−</button> <b>${p.stock}</b> <button data-p="${p.id}">+</button></td><td>${money(p.costo)}</td><td>${money(p.precio)}</td><td><input type="checkbox" data-v="${p.id}" ${p.visible?"checked":""}></td><td><button data-e="${p.id}">Editar</button> <button data-d="${p.id}">Baja</button></td></tr>`).join("")}</table></div>`;
+ const st=async(i,s)=>{await sb.from("productos").update({stock:Math.max(0,pid(i).stock+s)}).eq("id",i);load()};
+ $$("[data-m]",b=>b.onclick=()=>st(b.dataset.m,-1));$$("[data-p]",b=>b.onclick=()=>st(b.dataset.p,1));
+ $$("[data-v]",b=>b.onchange=async()=>{await sb.from("productos").update({visible:b.checked}).eq("id",b.dataset.v);load()});
+ $$("[data-e]",b=>b.onclick=()=>{edit=b.dataset.e;render()});
+ $$("[data-d]",b=>b.onclick=async()=>{if(confirm("¿Dar de baja este producto?")){await sb.from("productos").delete().eq("id",b.dataset.d);load()}});
+ if(edit)$("#cx").onclick=()=>{edit=null;render()};
+ $("#f").onsubmit=async ev=>{ev.preventDefault();const f=new FormData(ev.target);
+  const o={nombre:f.get("nombre"),costo:+f.get("costo")||0,precio:+f.get("precio")||0,stock:+f.get("stock")||0,descripcion:f.get("desc")};
+  const file=f.get("foto");
+  if(file&&file.size){const n=Date.now()+"-"+file.name.replace(/[^\w.]/g,"_"),u=await sb.storage.from("fotos").upload(n,file);if(u.error)return alert("Error subiendo la foto");o.foto=sb.storage.from("fotos").getPublicUrl(n).data.publicUrl}
+  const r=edit?await sb.from("productos").update(o).eq("id",edit):await sb.from("productos").insert(o);
+  if(r.error)return alert("Error: "+r.error.message);edit=null;load()};
+}
+function vVentas(){
+ $("#m").innerHTML=`<h3>Nueva venta</h3><form id="f"><select name="p" required><option value="">Producto…</option>${P.map(p=>`<option value="${p.id}">${esc(p.nombre)} (stock ${p.stock})</option>`).join("")}</select><input name="c" placeholder="Cliente" required><input name="t" placeholder="WhatsApp cliente"><input name="q" type="number" min="1" value="1" required><input name="co" type="number" step="any" placeholder="Costo unit."><input name="pr" type="number" step="any" placeholder="Precio unit." required><select name="cobra">${SOCIOS.map(s=>`<option>${s}</option>`).join("")}</select><select name="m"><option>Efectivo</option><option>Transferencia</option></select><button class="p">Registrar y facturar</button></form>
+ <div class="w"><table><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Cobró</th><th>Medio</th><th></th></tr>${V.map(v=>`<tr><td>${v.fecha.slice(0,10)}</td><td>${esc(v.cliente)}</td><td>${v.cantidad} x ${esc(v.producto)}</td><td>${money(v.cantidad*v.precio)}</td><td>${v.cobra}</td><td>${v.medio}</td><td><button data-i="${v.id}">Factura</button></td></tr>`).join("")}</table></div>`;
+ const f=$("#f");f.p.onchange=()=>{const p=pid(f.p.value);if(p){f.co.value=p.costo;f.pr.value=p.precio}};
+ $$("[data-i]",b=>b.onclick=()=>factura(V.find(v=>v.id===b.dataset.i)));
+ f.onsubmit=async e=>{e.preventDefault();const p=pid(f.p.value),q=+f.q.value;
+  if(q>p.stock&&!confirm("No hay stock suficiente (es por pedido). ¿Registrar igual?"))return;
+  const{data,error}=await sb.from("ventas").insert({cliente:f.c.value,tel:f.t.value,producto_id:p.id,producto:p.nombre,cantidad:q,costo:+f.co.value||0,precio:+f.pr.value,cobra:f.cobra.value,medio:f.m.value}).select().single();
+  if(error)return alert("Error: "+error.message);
+  await sb.from("productos").update({stock:Math.max(0,p.stock-q)}).eq("id",p.id);await load();factura(data)};
+}
+function factura(v){
+ const txt=`ROYAL ESSENCE PARFUM\nComprobante N° ${String(v.nro).padStart(4,"0")}\nFecha: ${v.fecha.slice(0,10)}\nCliente: ${v.cliente}\n\n${v.cantidad} x ${v.producto} @ ${money(v.precio)}\nTOTAL: ${money(v.cantidad*v.precio)}\nPago: ${v.medio} (a ${v.cobra})\n\n¡Gracias por tu compra!`;
+ const d=$("#d");d.innerHTML=`<pre>${esc(txt)}</pre><a href="https://wa.me/${(v.tel||"").replace(/\D/g,"")}?text=${encodeURIComponent(txt)}" target="_blank"><button class="p">Enviar por WhatsApp</button></a> <button id="pr">Imprimir</button> <button id="cl">Cerrar</button>`;
+ d.showModal();$("#cl").onclick=()=>d.close();$("#pr").onclick=()=>window.print();
+}
+function vDinero(){
+ const sum=l=>l.reduce((s,v)=>s+v.cantidad*v.precio,0),gan=V.reduce((s,v)=>s+v.cantidad*(v.precio-v.costo),0);
+ $("#m").innerHTML=`<div class="c">Vendido <span class="pr">${money(sum(V))}</span> · Ganancia <span class="pr">${money(gan)}</span> · Capital en stock <span class="pr">${money(P.reduce((s,p)=>s+p.stock*p.costo,0))}</span></div>
+ <h3>Cobrado por socio y medio</h3><table><tr><th></th><th>Efectivo</th><th>Transferencia</th><th>Total</th></tr>${SOCIOS.map(s=>{const a=V.filter(v=>v.cobra===s);return`<tr><td>${s}</td><td>${money(sum(a.filter(v=>v.medio==="Efectivo")))}</td><td>${money(sum(a.filter(v=>v.medio==="Transferencia")))}</td><td><b>${money(sum(a))}</b></td></tr>`}).join("")}</table>`;
+}
+function vPed(){
+ $("#m").innerHTML=`<h3>Gestor de pedidos</h3>`+(O.length?O.map(o=>`<div class="c"><b>${esc(o.cliente)}</b> · ${esc(o.tel)} <span class="m">${o.fecha.slice(0,10)}</span><br>${o.items.map(i=>`${i.cant} x ${esc(i.nombre)}`).join(", ")} — <b>${money(o.total)}</b><br><button data-s="${o.id}">${o.estado==="Pendiente"?"Marcar entregado":"Entregado ✓ (reabrir)"}</button> <button data-x="${o.id}">Borrar</button></div>`).join(""):'<p class="m">Todavía no hay pedidos.</p>');
+ $$("[data-s]",b=>b.onclick=async()=>{const o=O.find(x=>x.id===b.dataset.s);await sb.from("pedidos").update({estado:o.estado==="Pendiente"?"Entregado":"Pendiente"}).eq("id",o.id);load()});
+ $$("[data-x]",b=>b.onclick=async()=>{await sb.from("pedidos").delete().eq("id",b.dataset.x);load()});
+}
+</script></body></html>
