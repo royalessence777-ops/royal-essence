@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Royal Essence Parfum · Catálogo</title>
-<meta name="description" content="Perfumes de importación por pedido">
+<meta name="description" content="Perfumes de importación por pedido.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&display=swap" rel="stylesheet">
 <style>
@@ -12,7 +12,7 @@ a{color:inherit}button,input{font:inherit;color:inherit}
 .btn{background:var(--accent);color:#fff;border:0;padding:13px 22px;cursor:pointer;font-weight:500;border-radius:0}
 .btn.o{background:transparent;color:var(--ink);border:1px solid var(--ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.hero{min-height:60svh;padding:var(--m);display:flex;flex-direction:column;justify-content:space-between}
+.hero{min-height:100svh;padding:var(--m);display:flex;flex-direction:column;justify-content:space-between}
 .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
 .top p{max-width:26ch;font-weight:500}.top nav{display:flex;gap:24px;font-size:var(--small);font-weight:500}.top nav a{text-decoration:none}
 .name{font-weight:600;letter-spacing:-.05em;line-height:.82;font-size:13.2vw;white-space:nowrap;margin:0 0 -.04em -.04em}
@@ -29,6 +29,8 @@ h2{font-size:var(--head);letter-spacing:-.04em;line-height:.95;font-weight:600;m
 .how{display:grid;grid-template-columns:1fr 1.3fr;gap:24px}.how h2{margin:0}.how ol{list-style:none;padding:0}
 .how li{padding:22px 0;border-top:1px solid var(--ink);font-size:var(--lead);line-height:1.3;letter-spacing:-.01em}.how li:last-child{border-bottom:1px solid var(--ink)}
 .empty{color:var(--muted);grid-column:1/-1}
+.find{margin-bottom:40px;display:grid;gap:20px}.find input{width:100%;max-width:420px;padding:12px 0;border:0;border-bottom:1px solid var(--ink);background:transparent;border-radius:0;font-size:var(--body)}.find input::placeholder{color:var(--muted)}
+#cats{display:flex;gap:8px 24px;flex-wrap:wrap}.ch{background:none;border:0;border-bottom:2px solid transparent;padding:4px 0;cursor:pointer;color:var(--muted);font-weight:500}.ch.on{color:var(--ink);border-color:var(--accent)}
 footer{background:var(--ink);color:var(--bg);margin-top:clamp(80px,14vw,200px);padding:var(--m) var(--m) 0;overflow:hidden}
 footer .r{display:flex;justify-content:space-between;gap:24px;font-size:var(--small);padding-bottom:40px}
 footer .name{margin-bottom:-.12em}
@@ -41,38 +43,43 @@ dialog .btn{width:100%}
 @media(max-width:560px){:root{--m:16px}.name{font-size:24vw;white-space:normal;line-height:.85}.top nav{flex-direction:column;gap:6px;text-align:right}.ph{padding:12px}}
 </style></head><body>
 <header class="hero">
- <div class="top"><p>Perfumes de importación Royal Essence</p><nav><a href="#catalogo">Catálogo</a><a href="#como">Cómo pedir</a><a href="#contacto">WhatsApp</a></nav></div>
+ <div class="top"><p>Perfumes de importación, por pedido.</p><nav><a href="#catalogo">Catálogo</a><a href="#como">Cómo pedir</a><a href="#contacto">WhatsApp</a></nav></div>
  <h1 class="name">Royal Essence<small>Parfum</small></h1>
 </header>
-<section id="catalogo"><h2>Catálogo</h2><div class="grid" id="g"><p class="empty">Cargando perfumes…</p></div></section>
+<section id="catalogo"><h2>Catálogo</h2><div class="find"><input id="s" type="search" placeholder="Buscar perfume" aria-label="Buscar perfume"><div id="cats"></div></div><div class="grid" id="g"><p class="empty">Cargando perfumes…</p></div></section>
 <section id="como"><div class="how"><h2>Cómo pedir</h2><ol>
  <li>Elegís tus perfumes y los sumás al pedido.</li>
  <li>El pedido nos llega y te escribimos por WhatsApp para confirmarlo y coordinar el pago.</li>
  <li>Trabajamos por pedido: lo que no tenemos en stock lo traemos especialmente para vos.</li></ol></div></section>
 <footer id="contacto"><div class="r"><span>Royal Essence Parfum</span><a href="#" id="wa">Escribinos por WhatsApp</a></div><div class="name" aria-hidden="true">Royal Essence</div></footer>
 <div id="cart"></div><dialog id="d"></dialog>
+<script src="../config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
-const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="sb_publishable_7lk7Tul0yXUudIkkhnMKsQ_ZAltDex6",WA="5493532437140";
-const sb=supabase.createClient(SB_URL,SB_KEY);let P=[],cart={};
-const $=s=>document.querySelector(s),money=n=>"$"+Number(n||0).toLocaleString("es-AR");
+const {SB_URL,SB_KEY,WA}=window.CFG;
+const sb=supabase.createClient(SB_URL,SB_KEY);let P=[],cart={},cat="",qs="";
+const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nz=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 $("#wa").href="https://wa.me/"+WA;
-(async()=>{const{data,error}=await sb.from("productos").select("id,nombre,descripcion,precio,foto").eq("visible",true).order("nombre");
+(async()=>{const{data,error}=await sb.from("productos").select("id,nombre,descripcion,foto,categoria").eq("visible",true).order("nombre");
  if(error)$("#g").innerHTML='<p class="empty">No pudimos cargar el catálogo. Probá de nuevo en un momento.</p>';else{P=data||[];draw()}})();
+$("#s").oninput=e=>{qs=e.target.value;draw()};
+$("#cats").onclick=e=>{const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;draw()}};
 function draw(){
- $("#g").innerHTML=P.length?P.map(p=>`<article class="it"><div class="ph">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">`:esc(p.nombre)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion)}</p><div class="row"><span class="price">${money(p.precio)}</span><button class="btn o" data-a="${p.id}">Agregar a pedido${cart[p.id]?" · "+cart[p.id]:""}</button></div></article>`).join(""):'<p class="empty">Estamos cargando los perfumes. Volvé pronto.</p>';
+ const cats=[...new Set(P.map(p=>p.categoria).filter(Boolean))].sort();
+ $("#cats").innerHTML=cats.length?[["","Todos"],...cats.map(c=>[c,c])].map(([v,l])=>`<button class="ch${cat===v?" on":""}" data-c="${esc(v)}">${esc(l)}</button>`).join(""):"";
+ const L=P.filter(p=>(!cat||p.categoria===cat)&&(!qs||nz(p.nombre).includes(nz(qs))||nz(p.descripcion).includes(nz(qs))));
+ $("#g").innerHTML=L.length?L.map(p=>`<article class="it"><div class="ph">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">`:esc(p.nombre)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion)}</p><div class="row"><button class="btn o" data-a="${p.id}" style="width:100%">Agregar a pedido${cart[p.id]?" · "+cart[p.id]:""}</button></div></article>`).join(""):`<p class="empty">${P.length?"No encontramos perfumes con esa búsqueda.":"Estamos cargando los perfumes. Volvé pronto."}</p>`;
  document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{cart[b.dataset.a]=(cart[b.dataset.a]||0)+1;draw()});
  const ids=Object.keys(cart).filter(i=>P.some(p=>p.id===i)),c=$("#cart");c.style.display=ids.length?"flex":"none";
- const tot=ids.reduce((s,i)=>s+P.find(p=>p.id===i).precio*cart[i],0);
- c.innerHTML=`<b>${ids.reduce((s,i)=>s+cart[i],0)} perfume(s) · ${money(tot)}</b><span><button class="btn o" id="x">Vaciar</button> <button class="btn" id="go">Enviar pedido</button></span>`;
+ c.innerHTML=`<b>${ids.reduce((s,i)=>s+cart[i],0)} perfume(s) en tu pedido</b><span><button class="btn o" id="x">Vaciar</button> <button class="btn" id="go">Enviar pedido</button></span>`;
  if(ids.length){$("#x").onclick=()=>{cart={};draw()};$("#go").onclick=ask}
 }
 function ask(){const d=$("#d");d.innerHTML='<h3>Tu pedido</h3><form id="f"><input name="n" placeholder="Tu nombre" autocomplete="name" required><input name="t" placeholder="Tu WhatsApp" inputmode="tel" required><button class="btn">Enviar por WhatsApp</button></form>';d.showModal();
  $("#f").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);
-  const items=Object.keys(cart).map(i=>{const p=P.find(x=>x.id===i);return p&&{id:i,nombre:p.nombre,cant:cart[i],precio:p.precio}}).filter(Boolean);
-  const total=items.reduce((s,i)=>s+i.cant*i.precio,0);
-  await sb.from("pedidos").insert({cliente:f.get("n"),tel:f.get("t"),items,total});
-  const msg=`Hola! Soy ${f.get("n")} (${f.get("t")}). Quiero:\n`+items.map(i=>`• ${i.cant} x ${i.nombre} (${money(i.precio)})`).join("\n")+`\nTotal: ${money(total)}`;
+  const items=Object.keys(cart).map(i=>{const p=P.find(x=>x.id===i);return p&&{id:i,nombre:p.nombre,cant:cart[i]}}).filter(Boolean);
+  await sb.from("pedidos").insert({cliente:f.get("n"),tel:f.get("t"),items});
+  const msg=`Hola! Soy ${f.get("n")} (${f.get("t")}). Quiero:\n`+items.map(i=>`• ${i.cant} x ${i.nombre}`).join("\n");
   window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,"_blank");cart={};d.close();draw()}}
 </script></body></html>
