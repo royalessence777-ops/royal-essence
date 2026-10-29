@@ -1,38 +1,76 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Royal Essence Parfum</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Royal Essence Parfum · Catálogo</title>
+<meta name="description" content="Perfumes de importación por pedido.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf7f2;--card:#fff;--tx:#1d1a16;--mu:#7a7266;--ac:#a8812f;--bd:#e6dfd2}
-@media(prefers-color-scheme:dark){:root{--bg:#15130f;--card:#201d17;--tx:#f1ece2;--mu:#a39a8a;--ac:#d4a84b;--bd:#37321f}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,sans-serif;padding-bottom:80px}
-h1{font:600 26px Georgia,serif;color:var(--ac);text-align:center;letter-spacing:1px;margin:22px 0 4px}p.s{text-align:center;color:var(--mu);margin:0 0 16px}
-button,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;cursor:pointer}
-.p{background:var(--ac);color:#fff;border-color:var(--ac)}
-main{max-width:960px;margin:auto;padding:0 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.c{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px}.c img,.ph{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--bd);display:block}
-.m{color:var(--mu);font-size:13px}.pr{color:var(--ac);font-weight:700}
-#cart{position:fixed;left:0;right:0;bottom:0;padding:10px 12px;background:var(--card);border-top:1px solid var(--bd);display:none}
-dialog{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;width:92%;max-width:380px}dialog input{width:100%;margin-bottom:8px}
+:root{--bg:#f7f9fa;--surface:#ecf0f2;--ink:#1f3038;--muted:#4f5d64;--accent:#0d7480;--m:24px;
+--small:clamp(.8125rem,.79rem + .1vw,.875rem);--body:clamp(1.0625rem,1rem + .25vw,1.1875rem);--lead:clamp(1.25rem,1.1rem + .7vw,1.625rem);--head:clamp(2rem,1.3rem + 3.2vw,4rem)}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 var(--body)/1.5 "Bricolage Grotesque",system-ui,sans-serif;font-optical-sizing:auto;padding-bottom:70px}
+a{color:inherit}button,input{font:inherit;color:inherit}
+.btn{background:var(--accent);color:#fff;border:0;padding:13px 22px;cursor:pointer;font-weight:500;border-radius:0}
+.btn.o{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hero{min-height:100svh;padding:var(--m);display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
+.top p{max-width:26ch;font-weight:500}.top nav{display:flex;gap:24px;font-size:var(--small);font-weight:500}.top nav a{text-decoration:none}
+.name{font-weight:600;letter-spacing:-.05em;line-height:.82;font-size:13.2vw;white-space:nowrap;margin:0 0 -.04em -.04em}
+.name small{display:block;font-size:var(--lead);letter-spacing:0;font-weight:400;line-height:1.3;margin-top:18px;color:var(--muted)}
+section{padding:clamp(80px,14vw,200px) var(--m) 0;max-width:1400px;margin:auto}
+h2{font-size:var(--head);letter-spacing:-.04em;line-height:.95;font-weight:600;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:56px 24px}
+.ph{aspect-ratio:4/5;background:var(--surface);display:flex;align-items:flex-end;padding:16px;font-size:var(--lead);font-weight:600;letter-spacing:-.03em;line-height:1}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;margin:-16px;width:calc(100% + 32px);height:calc(100% + 32px)}
+.ph:has(img){padding:0;overflow:hidden}.ph:has(img) img{margin:0;width:100%;height:100%}
+.it h3{font-size:var(--lead);font-weight:500;letter-spacing:-.02em;margin:14px 0 2px;line-height:1.15}
+.it p{color:var(--muted);font-size:var(--small);max-width:42ch;min-height:2.6em}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:12px}.price{font-weight:600;font-size:var(--lead)}
+.how{display:grid;grid-template-columns:1fr 1.3fr;gap:24px}.how h2{margin:0}.how ol{list-style:none;padding:0}
+.how li{padding:22px 0;border-top:1px solid var(--ink);font-size:var(--lead);line-height:1.3;letter-spacing:-.01em}.how li:last-child{border-bottom:1px solid var(--ink)}
+.empty{color:var(--muted);grid-column:1/-1}
+footer{background:var(--ink);color:var(--bg);margin-top:clamp(80px,14vw,200px);padding:var(--m) var(--m) 0;overflow:hidden}
+footer .r{display:flex;justify-content:space-between;gap:24px;font-size:var(--small);padding-bottom:40px}
+footer .name{margin-bottom:-.12em}
+#cart{position:fixed;left:0;right:0;bottom:0;padding:12px var(--m);background:var(--surface);display:none;align-items:center;justify-content:space-between;gap:12px;z-index:5}
+dialog{background:var(--bg);color:var(--ink);border:0;padding:28px;width:min(92%,400px)}dialog::backdrop{background:rgba(31,48,56,.5)}
+dialog h3{font-size:var(--lead);margin-bottom:16px;letter-spacing:-.02em}
+dialog input{width:100%;padding:12px;border:1px solid var(--ink);background:var(--bg);border-radius:0;margin-bottom:12px}
+dialog .btn{width:100%}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);gap:40px 16px}.how{grid-template-columns:1fr}}
+@media(max-width:560px){:root{--m:16px}.name{font-size:24vw;white-space:normal;line-height:.85}.top nav{flex-direction:column;gap:6px;text-align:right}.ph{padding:12px}}
 </style></head><body>
-<h1>ROYAL ESSENCE PARFUM</h1><p class="s">Perfumería por pedido</p>
-<main id="m"></main><div id="cart"></div><dialog id="d"></dialog>
+<header class="hero">
+ <div class="top"><p>Perfumes de importación, por pedido.</p><nav><a href="#catalogo">Catálogo</a><a href="#como">Cómo pedir</a><a href="#contacto">WhatsApp</a></nav></div>
+ <h1 class="name">Royal Essence<small>Parfum</small></h1>
+</header>
+<section id="catalogo"><h2>Catálogo</h2><div class="grid" id="g"><p class="empty">Cargando perfumes…</p></div></section>
+<section id="como"><div class="how"><h2>Cómo pedir</h2><ol>
+ <li>Elegís tus perfumes y los sumás al pedido.</li>
+ <li>El pedido nos llega y te escribimos por WhatsApp para confirmarlo y coordinar el pago.</li>
+ <li>Trabajamos por pedido: lo que no tenemos en stock lo traemos especialmente para vos.</li></ol></div></section>
+<footer id="contacto"><div class="r"><span>Royal Essence Parfum</span><a href="#" id="wa">Escribinos por WhatsApp</a></div><div class="name" aria-hidden="true">Royal Essence</div></footer>
+<div id="cart"></div><dialog id="d"></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
-const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="sb_publishable_7lk7Tul0yXUudIkkhnMKsQ_ZAltDex6",WA="5493532437140";
+const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="",WA="5490000000000";
 const sb=supabase.createClient(SB_URL,SB_KEY);let P=[],cart={};
 const $=s=>document.querySelector(s),money=n=>"$"+Number(n||0).toLocaleString("es-AR");
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-(async()=>{const{data}=await sb.from("productos").select("id,nombre,descripcion,precio,foto").order("nombre");P=data||[];draw()})();
+$("#wa").href="https://wa.me/"+WA;
+(async()=>{const{data,error}=await sb.from("productos").select("id,nombre,descripcion,precio,foto").eq("visible",true).order("nombre");
+ if(error)$("#g").innerHTML='<p class="empty">No pudimos cargar el catálogo. Probá de nuevo en un momento.</p>';else{P=data||[];draw()}})();
 function draw(){
- $("#m").innerHTML=P.map(p=>`<div class="c">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}">`:'<div class="ph"></div>'}<b>${esc(p.nombre)}</b><div class="m">${esc(p.descripcion)}</div><div class="pr">${money(p.precio)}</div><button data-a="${p.id}" style="width:100%;margin-top:6px">Agregar a pedido${cart[p.id]?" ("+cart[p.id]+")":""}</button></div>`).join("");
+ $("#g").innerHTML=P.length?P.map(p=>`<article class="it"><div class="ph">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">`:esc(p.nombre)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion)}</p><div class="row"><span class="price">${money(p.precio)}</span><button class="btn o" data-a="${p.id}">Agregar a pedido${cart[p.id]?" · "+cart[p.id]:""}</button></div></article>`).join(""):'<p class="empty">Estamos cargando los perfumes. Volvé pronto.</p>';
  document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{cart[b.dataset.a]=(cart[b.dataset.a]||0)+1;draw()});
- const ids=Object.keys(cart),c=$("#cart");c.style.display=ids.length?"block":"none";
+ const ids=Object.keys(cart).filter(i=>P.some(p=>p.id===i)),c=$("#cart");c.style.display=ids.length?"flex":"none";
  const tot=ids.reduce((s,i)=>s+P.find(p=>p.id===i).precio*cart[i],0);
- c.innerHTML=`<b>${ids.reduce((s,i)=>s+cart[i],0)} perfume(s) · ${money(tot)}</b> <button class="p" id="go" style="float:right">Enviar pedido</button><button id="x" style="float:right;margin-right:6px">Vaciar</button>`;
+ c.innerHTML=`<b>${ids.reduce((s,i)=>s+cart[i],0)} perfume(s) · ${money(tot)}</b><span><button class="btn o" id="x">Vaciar</button> <button class="btn" id="go">Enviar pedido</button></span>`;
  if(ids.length){$("#x").onclick=()=>{cart={};draw()};$("#go").onclick=ask}
 }
-function ask(){const d=$("#d");d.innerHTML='<h3>Tu pedido</h3><form id="f"><input name="n" placeholder="Tu nombre" required><input name="t" placeholder="Tu WhatsApp" required><button class="p" style="width:100%">Enviar</button></form>';d.showModal();
+function ask(){const d=$("#d");d.innerHTML='<h3>Tu pedido</h3><form id="f"><input name="n" placeholder="Tu nombre" autocomplete="name" required><input name="t" placeholder="Tu WhatsApp" inputmode="tel" required><button class="btn">Enviar por WhatsApp</button></form>';d.showModal();
  $("#f").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);
-  const items=Object.keys(cart).map(i=>{const p=P.find(x=>x.id===i);return{id:i,nombre:p.nombre,cant:cart[i],precio:p.precio}});
+  const items=Object.keys(cart).map(i=>{const p=P.find(x=>x.id===i);return p&&{id:i,nombre:p.nombre,cant:cart[i],precio:p.precio}}).filter(Boolean);
   const total=items.reduce((s,i)=>s+i.cant*i.precio,0);
   await sb.from("pedidos").insert({cliente:f.get("n"),tel:f.get("t"),items,total});
   const msg=`Hola! Soy ${f.get("n")} (${f.get("t")}). Quiero:\n`+items.map(i=>`• ${i.cant} x ${i.nombre} (${money(i.precio)})`).join("\n")+`\nTotal: ${money(total)}`;
