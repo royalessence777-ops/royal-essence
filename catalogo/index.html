@@ -30,6 +30,7 @@ h2{font-size:var(--head);letter-spacing:-.04em;line-height:.95;font-weight:600;m
 .how{display:grid;grid-template-columns:1fr 1.3fr;gap:24px}.how h2{margin:0}.how ol{list-style:none;padding:0}
 .how li{padding:22px 0;border-top:1px solid var(--ink);font-size:var(--lead);line-height:1.3;letter-spacing:-.01em}.how li:last-child{border-bottom:1px solid var(--ink)}
 .empty{color:var(--muted);grid-column:1/-1}
+.fx{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:20px;scrollbar-width:thin;scrollbar-color:var(--muted) transparent}.fx .it{flex:0 0 min(78vw,300px);scroll-snap-align:start}
 .more{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;margin-top:56px;color:var(--muted);font-size:var(--small)}.more:empty{display:none}.more span{margin-right:auto}
 .find{margin-bottom:40px;display:grid;gap:20px}.find input{width:100%;max-width:420px;padding:12px 0;border:0;border-bottom:1px solid var(--ink);background:transparent;border-radius:0;font-size:var(--body)}.find input::placeholder{color:var(--muted)}
 #cats{display:flex;gap:8px 24px;flex-wrap:wrap}.ch{background:none;border:0;border-bottom:2px solid transparent;padding:4px 0;cursor:pointer;color:var(--muted);font-weight:500}.ch.on{color:var(--ink);border-color:var(--accent)}
@@ -48,6 +49,7 @@ dialog .btn{width:100%}
  <div class="top"><a class="logo" href="#" aria-label="Royal Essence Parfum"><img src="logo.png" alt="Royal Essence Parfum" width="84" height="84"></a><nav><a href="#catalogo">Catálogo</a><a href="#como">Cómo pedir</a><a href="#contacto">WhatsApp</a></nav></div>
  <h1 class="name">Royal Essence<small>Parfum</small></h1>
 </header>
+<section id="destacados" hidden><h2>Destacados</h2><div class="fx" id="fx"></div></section>
 <section id="catalogo"><h2>Catálogo</h2><div class="find"><input id="s" type="search" placeholder="Buscar perfume" aria-label="Buscar perfume"><div id="cats"></div></div><div class="grid" id="g"><p class="empty">Cargando perfumes…</p></div><div class="more" id="more"></div></section>
 <section id="como"><div class="how"><h2>Cómo pedir</h2><ol>
  <li>Elegís tus perfumes y los sumás al pedido.</li>
@@ -64,7 +66,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const nz=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 $("#wa").href="https://wa.me/"+WA;
-(async()=>{const{data,error}=await sb.from("productos").select("id,nombre,descripcion,foto,categoria").eq("visible",true).order("nombre");
+(async()=>{const{data,error}=await sb.from("productos").select("id,nombre,descripcion,foto,categoria,destacado").eq("visible",true).order("nombre");
  if(error)$("#g").innerHTML='<p class="empty">No pudimos cargar el catálogo. Probá de nuevo en un momento.</p>';else{P=data||[];draw()}})();
 $("#s").oninput=e=>{qs=e.target.value;shown=12;draw()};
 $("#cats").onclick=e=>{const b=e.target.closest("[data-c]");if(b){cat=b.dataset.c;shown=12;draw()}};
@@ -72,7 +74,9 @@ function draw(){
  const cats=[...new Set(P.map(p=>p.categoria).filter(Boolean))].sort();
  $("#cats").innerHTML=cats.length?[["","Todos"],...cats.map(c=>[c,c])].map(([v,l])=>`<button class="ch${cat===v?" on":""}" data-c="${esc(v)}">${esc(l)}</button>`).join(""):"";
  const L=P.filter(p=>(!cat||p.categoria===cat)&&(!qs||nz(p.nombre).includes(nz(qs))||nz(p.descripcion).includes(nz(qs))));
- $("#g").innerHTML=L.length?L.slice(0,shown).map(p=>`<article class="it"><div class="ph">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">`:esc(p.nombre)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion)}</p><div class="row"><button class="btn o" data-a="${p.id}" style="width:100%">Agregar a pedido${cart[p.id]?" · "+cart[p.id]:""}</button></div></article>`).join(""):`<p class="empty">${P.length?"No encontramos perfumes con esa búsqueda.":"Estamos cargando los perfumes. Volvé pronto."}</p>`;
+ const card=p=>`<article class="it"><div class="ph">${p.foto?`<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">`:esc(p.nombre)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion)}</p><div class="row"><button class="btn o" data-a="${p.id}" style="width:100%">Agregar a pedido${cart[p.id]?" · "+cart[p.id]:""}</button></div></article>`;
+ const F=P.filter(p=>p.destacado),fs=$("#destacados");fs.hidden=!F.length||!!(qs||cat);$("#fx").innerHTML=F.map(card).join("");
+ $("#g").innerHTML=L.length?L.slice(0,shown).map(card).join(""):`<p class="empty">${P.length?"No encontramos perfumes con esa búsqueda.":"Estamos cargando los perfumes. Volvé pronto."}</p>`;
  const mo=$("#more");
  mo.innerHTML=L.length>shown?`<span>Mostrando ${shown} de ${L.length} perfumes</span><button class="btn o" id="mm">Mostrar más</button><button class="btn" id="ma">Mostrar todos</button>`:L.length>12?`<span>Mostrando los ${L.length} perfumes</span><button class="btn o" id="ml">Mostrar menos</button>`:"";
  if($("#mm"))$("#mm").onclick=()=>{shown+=12;draw()};if($("#ma"))$("#ma").onclick=()=>{shown=L.length;draw()};
