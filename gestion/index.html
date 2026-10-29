@@ -55,7 +55,7 @@ dialog form{display:grid;gap:12px;margin-top:12px}
 <aside id="side"></aside><main class="sheet" id="v"></main><dialog id="d"></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
-const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="TU_ANON_KEY";
+const SB_URL="https://mkchtybakuwekjfycnia.supabase.co",SB_KEY="sb_publishable_7lk7Tul0yXUudIkkhnMKsQ_ZAltDex6";
 const SOCIOS=["Tiago","Joaquin","Cuenta del negocio"],PERS=["Tiago","Joaquin"],MED=["Efectivo","Transferencia"],sb=supabase.createClient(SB_URL,SB_KEY);
 const REC=1.015,cst=c=>Math.round((+c||0)*REC*100)/100; /* al costo se le suma 1,5 % */
 let P=[],V=[],O=[],C=[],K=[],D=[],PG=[],PC=[],tab="ped",edit=null,show=false,est="todos",q="",who="",ctab="cli";
